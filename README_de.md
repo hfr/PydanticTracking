@@ -100,6 +100,16 @@ class MyModel(TrackingMixin, BaseModel):
     @tracked_save
     def save(self):
         print(f"Saving {self.name}")
+```
+
+Der Decorator sorgt dafür, dass:
+
+* save() nur ausgeführt wird, wenn Änderungen vorliegen (außer force=True wird gesetzt),
+
+* nach erfolgreichem Speichern der Dirty-Zustand zurückgesetzt wird.
+
+Fazit:
+Der @tracked_save-Decorator ist ideal, wenn Sie das Änderungs-Tracking nutzen möchten, ohne Ihre Datenmodelle an eine spezifische Speichertechnologie zu binden oder eine zusätzliche Abstraktionsschicht einzuführen.
 
 
 ## Testen
