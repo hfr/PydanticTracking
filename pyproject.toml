@@ -1,0 +1,23 @@
+[project]
+name = "pydantic-tracking"
+version = "0.1.0"
+description = "Dirty tracking and onchange hooks for Pydantic models"
+authors = [
+  { name="Rüdiger Kessel", email="ruediger.kessel@gmail.com" },
+]
+dependencies = ["pydantic>=2.0"]
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+readme = "README.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.urls]
+Homepage = "https://github.com/hfr/PydanticTracking/"
+Issues = "https://github.com/hfr/PydanticTracking/issues"
