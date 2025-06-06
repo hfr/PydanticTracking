@@ -104,11 +104,11 @@ class MyModel(TrackingMixin, BaseModel):
 
 Der Decorator sorgt dafür, dass:
 
-* save() nur ausgeführt wird, wenn Änderungen vorliegen (außer force=True wird gesetzt),
+- save() nur ausgeführt wird, wenn Änderungen vorliegen (außer force=True wird gesetzt),
 
-* nach erfolgreichem Speichern der Dirty-Zustand zurückgesetzt wird.
+- nach erfolgreichem Speichern der Dirty-Zustand zurückgesetzt wird.
 
-Fazit:
+#### Fazit:
 Der @tracked_save-Decorator ist ideal, wenn Sie das Änderungs-Tracking nutzen möchten, ohne Ihre Datenmodelle an eine spezifische Speichertechnologie zu binden oder eine zusätzliche Abstraktionsschicht einzuführen.
 
 

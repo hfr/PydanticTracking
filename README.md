@@ -77,8 +77,39 @@ class MyModel(TrackingMixin, BaseModel):
 | `clear_dirty()`         | Clears the dirty flag                                             |
 | Container types         | Automatically tracked: `TrackedList`, `TrackedDict`, `TrackedSet` |
 | `onchange`, `onchanged` | Optional callbacks for controlling or reacting to changes         |
-
+| `tracked_save`          | Decorator to use the tracking-logic with a custom save()-method   |
 ---
+
+## Using `TrackingMixin` with `BaseModel` and the `@tracked_save` Decorator
+
+The `TrackingMixin` enables automatic change tracking for Pydantic models. In many use cases, a `save()` method is also required — for example, to persist modified data. However, Pydantic’s `BaseModel` does not provide such a method by default.
+
+If you're working directly with `BaseModel` and **do not use an additional object or database layer** (such as `JsonModel`, `HashModel`, etc.), defining your own `save()` method can be problematic: a method on the data layer would bypass the logic inside the mixin.
+
+**Solution:** The `@tracked_save` decorator allows full change tracking support when you're using `BaseModel` directly, without any third-party models that provide integrated persistence routines.
+
+#### Example
+
+```python
+from pydantic import BaseModel
+from pydantic_tracking import TrackingMixin, tracked_save
+
+class MyModel(TrackingMixin, BaseModel):
+    name: str
+
+    @tracked_save
+    def save(self):
+        print(f"Saving {self.name}")
+```
+
+The decorator ensures that:
+
+- `save()` is only executed if changes are present (unless `force=True` is passed),
+- the dirty state is reset after saving.
+
+#### Conclusion:
+
+The @tracked_save decorator is ideal if you want to use change tracking without binding your data models to a specific storage implementation or introducing another abstraction layer.
 
 ## Testing
 
