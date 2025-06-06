@@ -21,3 +21,16 @@ build-backend = "hatchling.build"
 [project.urls]
 Homepage = "https://github.com/hfr/PydanticTracking/"
 Issues = "https://github.com/hfr/PydanticTracking/issues"
+
+[tool.hatch.envs.default]
+dependencies = [
+  "ruff"
+  "pytest"
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+exclude = ["tests/data", "docs"]
+lint.select = ["E", "F", "I", "UP", "N", "B"]
+lint.ignore = ["E501"]  # z.B. Zeilenlänge ignorieren
