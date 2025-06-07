@@ -100,6 +100,131 @@ assert "values" in m.dirty_fields()
 
 ---
 
+Klar, hier ist ein detaillierter Abschnitt zum **`is_dirty`**- und **`is_new`**-Handling für deine Dokumentation:
+
+---
+
+## Detaillierte Beschreibung von `is_dirty` und `is_new`
+
+Das Tracking des Zustands eines Modells erfolgt über zwei zentrale Konzepte:
+
+### 1. `is_new`
+
+* **Was bedeutet `is_new`?**
+  Das Modell wurde **erst neu erzeugt und noch nicht gespeichert**.
+
+* **Wie wird es bestimmt?**
+  Beim Initialisieren eines Modells mit `TrackingMixin` wird es als *neu* markiert (`_new = True`). Sobald die `save()`-Methode erfolgreich ausgeführt wird, wird `_new` auf `False` gesetzt.
+
+* **Beispiel:**
+
+  ```python
+  m = MyModel(field1=1)
+  assert m.is_new()  # True, da neu erstellt und noch nicht gespeichert
+
+  m.save()
+  assert not m.is_new()  # Nach dem Speichern ist es nicht mehr neu
+  ```
+
+---
+
+### 2. `is_dirty`
+
+* **Was bedeutet `is_dirty`?**
+  Das Modell hat seit dem letzten Speichern **eine oder mehrere Änderungen an den Daten** erfahren.
+
+* **Wie wird es bestimmt?**
+  Intern wird eine Menge (`_dirty_fields`) geführt, in der alle Felder gesammelt werden, die geändert wurden.
+
+* **Wie werden Änderungen erkannt?**
+
+  * Direkte Zuweisungen an Felder (`model.field = value`) markieren das Feld als dirty.
+  * Mutationen in Containern (`TrackedList`, `TrackedDict`, `TrackedSet`) rufen interne Setter auf, die ebenfalls das Feld als dirty markieren.
+
+* **Wann wird `_dirty_fields` zurückgesetzt?**
+
+  * Nach einem erfolgreichen `save()`-Aufruf.
+  * Oder manuell über `clear_dirty()`.
+
+* **Beispiel:**
+
+  ```python
+  m = MyModel(field1=10)
+  assert m.is_dirty()  # Neu erzeugt -> dirty
+
+  m.save()
+  assert not m.is_dirty()
+
+  m.field1 = 20
+  assert m.is_dirty()  # Änderung erkannt
+
+  m.clear_dirty()
+  assert not m.is_dirty()
+  ```
+
+---
+
+### Internes Zusammenspiel
+
+* **Initialzustand:**
+
+  * `_new = True`
+  * `_dirty_fields = {alle initialen Felder}`
+
+* **Speichern:**
+
+  * Speichert das Modell (je nach Implementierung).
+  * Setzt `_new = False`.
+  * Leert `_dirty_fields`.
+
+* **Änderungen:**
+
+  * Fügt veränderte Feldnamen zu `_dirty_fields` hinzu.
+
+* **Onchange-Hooks:**
+
+  * Dienen als Gatekeeper und können Änderungen blockieren (z.B. Validierung).
+
+flowchart TD
+    A[Modell erzeugt] --> B{Ist Modell neu?}
+    B -- Ja --> C[is_new = True]
+    C --> D[Felder initial dirty?]
+    D -- Ja --> E[is_dirty = True]
+    D -- Nein --> F[is_dirty = False]
+
+    E & F --> G[Änderung an Feld?]
+    G -- Ja --> H[Feld in dirty_fields aufnehmen]
+    H --> I[is_dirty = True]
+
+    G -- Nein --> I
+
+    I --> J[save() aufrufen?]
+    J -- Nein --> I
+    J -- Ja --> K{save() erfolgreich?}
+    K -- Ja --> L[is_new = False]
+    L --> M[dirty_fields löschen]
+    M --> N[is_dirty = False]
+    K -- Nein --> I
+
+**Erklärung:**
+
+* Zu Beginn ist das Modell `is_new = True` (neu) und alle Felder als dirty markiert (je nach Initialisierung).
+* Jede Änderung an einem Feld fügt dieses dem Set `dirty_fields` hinzu, wodurch `is_dirty` true wird.
+* Beim Speichern (`save()`) wird überprüft, ob das Speichern erfolgreich war.
+* Nach erfolgreichem Speichern wird das Modell nicht mehr als neu markiert (`is_new = False`) und alle dirty Flags werden zurückgesetzt (`is_dirty = False`).
+* Wenn keine Änderung erfolgt oder `save()` nicht erfolgreich ist, bleibt der Status erhalten.
+
+---
+
+### Warum diese Trennung?
+
+Die Trennung von **neu** (`is_new`) und **geändert** (`is_dirty`) ermöglicht präzise Steuerung:
+
+* **`is_new`** hilft zu erkennen, ob ein Datensatz noch nie persistiert wurde (z.B. Insert vs. Update in DB).
+* **`is_dirty`** zeigt an, ob eine Aktualisierung nötig ist.
+
+---
+
 ## Tests & Pfadabdeckung
 
 Das Projekt ist vollständig getestet und deckt alle relevanten Pfade ab, u. a.:
