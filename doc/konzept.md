@@ -185,7 +185,7 @@ Das Tracking des Zustands eines Modells erfolgt über zwei zentrale Konzepte:
 
   * Dienen als Gatekeeper und können Änderungen blockieren (z.B. Validierung).
 
-![Zustandsdiagramm des Datenmodells](doc/states.png)
+![Zustandsdiagramm des Datenmodells](states.png)
 
 **Erklärung:**
 
