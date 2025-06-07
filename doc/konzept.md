@@ -272,6 +272,3 @@ Dadurch ist das Projekt **PyPI-ready** und CI/CD-freundlich.
 
 ---
 
-Du kannst jetzt den Text hier im Canvas editieren oder ergänzen.
-Möchtest du noch weitere Abschnitte, Erklärungen oder Codebeispiele hinzufügen?
-
