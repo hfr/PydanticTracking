@@ -1,6 +1,5 @@
 [project]
 name = "pydantic-tracking"
-version = "0.1.0"
 description = "Dirty tracking and onchange hooks for Pydantic models"
 authors = [
   { name="Rüdiger Kessel", email="ruediger.kessel@gmail.com" },
@@ -38,3 +37,5 @@ exclude = ["tests/data", "docs"]
 lint.select = ["E", "F", "I", "UP", "N", "B"]
 lint.ignore = ["E501"]  # z.B. Zeilenlänge ignorieren
 
+[tool.hatch.version]
+path = "src/pydantic_tracking/__init__.py"

@@ -11,35 +11,35 @@
 #
 # Autor: Ruediger Kesse
 
-import pytest
-from typing import List
-from pydantic_tracking.mixin import TrackingMixin
 
+import pytest
 from redis_om import HashModel, get_redis_connection
 
+from pydantic_tracking.mixin import TrackingMixin
+
 # Verbindung zu lokalem Redis ohne Passwort
-redis = get_redis_connection(
-    host='localhost',
-    port=6379,
-    decode_responses=True
-)
+redis = get_redis_connection(host="localhost", port=6379, decode_responses=True)
+
 
 class TestModel(TrackingMixin, HashModel):
     field1: int = 0
 
     class Meta:
         database = redis
-        global_key_prefix = 'Test_TrackingMixin'
+        global_key_prefix = "Test_TrackingMixin"
+
 
 @pytest.fixture
 def cleanup():
     yield
-    keys = redis.keys('Test_TrackingMixin:*')
+    keys = redis.keys("Test_TrackingMixin:*")
     if keys:
         redis.delete(*keys)
 
+
 def reload_model(pk):
     return TestModel.get(pk)
+
 
 def test_redis_om_tracking_full_flow(cleanup):
     m = TestModel(field1=123)

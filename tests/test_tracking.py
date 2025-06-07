@@ -11,19 +11,23 @@
 #
 # Autor: Ruediger Kessel
 
-import pytest
-from pydantic import BaseModel, Field
-from typing import List, Dict, Set
-from pydantic_tracking.mixin import TrackingMixin, tracked_save  # Passe den Importpfad an
 import warnings
+from typing import Dict, List, Set
+
+from pydantic import BaseModel, Field
+
+from pydantic_tracking.mixin import TrackingMixin, tracked_save  # Passe den Importpfad an
+
 
 class BaseModelSave(BaseModel):
     def save(self):
         # Simulierter save(), z.B. Datenbank speichern
         return "saved"
 
+
 class DummyModel(TrackingMixin, BaseModelSave):
     field1: int = 0
+
 
 def test_save_method():
     m = DummyModel(field1=10)
@@ -54,12 +58,15 @@ def test_save_method():
     assert not m.is_dirty()
     assert not m.is_new()
 
+
 class DummyModelSave(TrackingMixin, BaseModel):
     field1: int = 0
+
     @tracked_save
     def save(self):
         # Simulierter save(), z.B. Datenbank speichern
         return "saved"
+
 
 def test_tracked_save_method_with_decorator():
     m = DummyModelSave(field1=10)
@@ -89,8 +96,10 @@ def test_tracked_save_method_with_decorator():
     assert not m.is_dirty()
     assert not m.is_new()
 
+
 class MyModel(TrackingMixin, BaseModel):
     tags: List[int] = Field(default_factory=list)
+
 
 def test_list_tracking():
     m = MyModel(tags=[1])
@@ -101,7 +110,8 @@ def test_list_tracking():
     assert m.is_dirty()
     assert not m.is_new()
     assert "tags" in m.dirty_fields()
-    
+
+
 def test_list_insert_and_clear():
     m = MyModel(tags=[1, 2])
     m.tags.insert(1, 99)
@@ -109,9 +119,11 @@ def test_list_insert_and_clear():
     m.tags.clear()
     assert m.tags == []
 
+
 def test_dict_operations():
     class ModelWithDict(TrackingMixin, BaseModel):
         data: Dict[str, int] = Field(default_factory=dict)
+
     m = ModelWithDict()
     m.data["x"] = 1
     del m.data["x"]
@@ -121,9 +133,11 @@ def test_dict_operations():
     m.data.clear()
     assert m.data == {}
 
+
 def test_set_operations():
     class ModelWithSet(TrackingMixin, BaseModel):
         items: Set[str] = Field(default_factory=set)
+
     m = ModelWithSet()
     m.items.add("foo")
     m.items.remove("foo")
@@ -132,6 +146,7 @@ def test_set_operations():
     m.items.add("baz")
     m.items.clear()
     assert m.items == set()
+
 
 def test_list_remove_marks_dirty():
     m = MyModel(tags=[1, 2, 3])
@@ -144,10 +159,11 @@ def test_list_remove_marks_dirty():
     assert m.is_dirty()
     assert "tags" in m.dirty_fields()
     assert m.tags == [1, 3]
- 
+
 
 class ModelWithoutSave(TrackingMixin, BaseModel):
     field: int = 0
+
 
 def test_tracking_save_without_base_method_warns():
     m = ModelWithoutSave(field=1)
@@ -161,4 +177,3 @@ def test_tracking_save_without_base_method_warns():
         assert len(w) == 1
         assert issubclass(w[0].category, UserWarning)
         assert "no save() method is defined in the parent class" in str(w[0].message)
-

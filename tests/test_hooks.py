@@ -11,10 +11,11 @@
 #
 # Autor: Ruediger Kessel
 
-import pytest
+from typing import Dict, List, Optional, Set
+
 from pydantic import BaseModel, Field
+
 from pydantic_tracking.mixin import TrackingMixin
-from typing import List, Dict, Set, Optional
 
 
 class HookTestModel(TrackingMixin, BaseModel):
@@ -46,12 +47,12 @@ def test_onchange_onchanged_list():
     m.mylist.pop()
 
     assert m.hook_log == [
-        'onchange:mylist:1',
-        'onchanged:mylist:None',
-        'onchange:mylist:[2, 3]',
-        'onchanged:mylist:None',
-        'onchange:mylist:None',
-        'onchanged:mylist:None'
+        "onchange:mylist:1",
+        "onchanged:mylist:None",
+        "onchange:mylist:[2, 3]",
+        "onchanged:mylist:None",
+        "onchange:mylist:None",
+        "onchanged:mylist:None",
     ]
 
 
@@ -67,7 +68,7 @@ def test_onchange_onchanged_dict():
         "onchange:mydict:{'b': 2}",
         "onchanged:mydict:None",
         "onchange:mydict:None",
-        "onchanged:mydict:None"
+        "onchanged:mydict:None",
     ]
 
 
@@ -89,11 +90,12 @@ def test_onchange_onchanged_set():
 
 def test_onchange_onchanged_value():
     m = HookTestModel()
-    m.myvalue='test'
+    m.myvalue = "test"
     assert m.hook_log == [
         "onchange:myvalue:test",
         "onchanged:myvalue:None",
     ]
+
 
 def test_onchange_blocks_operation():
     class BlockingModel(HookTestModel):
@@ -105,7 +107,7 @@ def test_onchange_blocks_operation():
     m.mylist.append(42)
     m.mydict["foo"] = 99
     m.myset.add("blocked")
-    m.myvalue='blocked'
+    m.myvalue = "blocked"
 
     assert m.mylist == []
     assert m.mydict == {}
@@ -114,8 +116,9 @@ def test_onchange_blocks_operation():
         "onchange:mylist:42",
         "onchange:mydict:('foo', 99)",
         "onchange:myset:blocked",
-        "onchange:myvalue:blocked"
+        "onchange:myvalue:blocked",
     ]
+
 
 def test_onchange_returns_none_is_treated_as_true():
     class NoneOnchangeModel(HookTestModel):
@@ -127,8 +130,4 @@ def test_onchange_returns_none_is_treated_as_true():
     m.mylist.append(99)
 
     assert m.mylist == [99]
-    assert m.hook_log == [
-        "onchange:mylist:99",
-        "onchanged:mylist:None"
-    ]
-
+    assert m.hook_log == ["onchange:mylist:99", "onchanged:mylist:None"]

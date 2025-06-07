@@ -17,7 +17,7 @@ test:
 
 # Linting mit Ruff (optional)
 .PHONY: lint
-lint:
+lint: format
 	hatch run ruff check src/ tests/
 
 # Formatierung mit Ruff
@@ -27,12 +27,12 @@ format:
 
 # Veröffentlichungs-Check
 .PHONY: build
-build:
+build: test
 	hatch build
 
 .PHONY: check
-check:
-	hatch build --check
+check: build
+	twine check dist/*
 
 # Veröffentlichung zu PyPI (Voraussetzung: `~/.pypirc`)
 .PHONY: publish

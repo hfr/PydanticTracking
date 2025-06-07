@@ -22,6 +22,7 @@
 #
 # Autor: Ruediger Kessel
 
+
 class TrackedContainerMixin:
     def __init__(self, parent, field, callback, onchange, onchanged):
         self._parent = parent
@@ -114,4 +115,3 @@ class TrackedSet(set, TrackedContainerMixin):
 
     def clear(self):
         self._setter(super().clear)
-

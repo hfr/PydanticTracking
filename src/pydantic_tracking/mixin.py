@@ -19,14 +19,20 @@
 #
 # Autor: Ruediger Kessel
 
-from typing import Callable, Optional, Any, get_origin
-from pydantic import BaseModel, PrivateAttr
-from .containers import TrackedList, TrackedDict, TrackedSet
 import warnings
+from typing import Any, Callable, Optional, get_origin
+
+from pydantic import PrivateAttr
+
+from .containers import TrackedDict, TrackedList, TrackedSet
+
 
 class TrackingMixin:
-    _onchange: Optional[Callable[["TrackingMixin", str, Any], Optional[bool]]] = PrivateAttr(default=None)
+    _onchange: Optional[Callable[["TrackingMixin", str, Any], Optional[bool]]] = PrivateAttr(
+        default=None
+    )
     _onchanged: Optional[Callable[["TrackingMixin", str, Any], None]] = PrivateAttr(default=None)
+
     def __init__(self, **data):
         super().__init__(**data)
         for field, value in self.model_dump().items():
@@ -44,8 +50,8 @@ class TrackingMixin:
         if callable(self.onchange):
             result = self.onchange(name, value)
             if result is None:
-                result=True
-            return result   
+                result = True
+            return result
         else:
             return True
 
@@ -71,13 +77,20 @@ class TrackingMixin:
 
     def _wrap(self, field, value):
         t = get_origin(self.__class__.model_fields[field].annotation)
-        if t == list and not isinstance(value, TrackedList):
-            return TrackedList(value, self, field, self._mark_dirty, self._call_onchange, self._call_onchanged)
-        if t == dict and not isinstance(value, TrackedDict):
-            return TrackedDict(value, self, field, self._mark_dirty, self._call_onchange, self._call_onchanged)
-        if t == set and not isinstance(value, TrackedSet):
-            return TrackedSet(value, self, field, self._mark_dirty, self._call_onchange, self._call_onchanged)
-        return value
+        if t is list and not isinstance(value, TrackedList):
+            return TrackedList(
+                value, self, field, self._mark_dirty, self._call_onchange, self._call_onchanged
+            )
+        elif t is dict and not isinstance(value, TrackedDict):
+            return TrackedDict(
+                value, self, field, self._mark_dirty, self._call_onchange, self._call_onchanged
+            )
+        elif t is set and not isinstance(value, TrackedSet):
+            return TrackedSet(
+                value, self, field, self._mark_dirty, self._call_onchange, self._call_onchanged
+            )
+        else:
+            return value
 
     def __setattr__(self, name, value):
         if name.startswith("_"):
@@ -113,8 +126,11 @@ class TrackingMixin:
             try:
                 result = super().save()
             except AttributeError:
-                warnings.warn("Calling save(), but no save() method is defined in the parent class.",
-                    category=UserWarning)
+                warnings.warn(
+                    "Calling save(), but no save() method is defined in the parent class.",
+                    category=UserWarning,
+                    stacklevel=2,
+                )
                 result = None
             self.__original_data__ = self.model_dump()
             self.__dirty_fields__ = set()
@@ -135,6 +151,7 @@ class TrackingMixin:
         self.__original_data__ = self.model_dump()
         self.__dirty_fields__.clear()
 
+
 def tracked_save(method):
     def wrapper(self, *args, **kwargs):
         if hasattr(self, "is_dirty") and callable(self.is_dirty):
@@ -149,5 +166,5 @@ def tracked_save(method):
                 self.clear_dirty()
                 self.__is_new__ = False
         return result
-    return wrapper
 
+    return wrapper
