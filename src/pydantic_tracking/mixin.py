@@ -1,14 +1,32 @@
-# mixin.py
+# TrackingMixin für Pydantic-Modelle
+#
+# Dieses Mixin erweitert Pydantic-Modelle um Änderungsverfolgung ("dirty tracking") und
+# erlaubt es, Hook-Funktionen (`onchange`, `onchanged`) zu registrieren, die bei Änderungen an Feldern
+# (inkl. komplexer Typen wie Listen, Dictionaries oder Sets) aufgerufen werden.
+#
+# - `onchange(field, value)` kann Rückgabe `False` liefern, um eine Änderung zu verhindern.
+# - `onchanged(field, old_value)` wird nach erfolgreicher Änderung aufgerufen.
+# - Unterstützt TrackedList, TrackedDict, TrackedSet (siehe containers.py).
+# - Nutzt `PrivateAttr`, um `_onchange` und `_onchanged` vor Pydantic zu verstecken.
+# - Methoden wie `is_dirty()`, `clear_dirty()` und `save(force=True)` unterstützen die Verwaltung von Änderungen.
+#
+# Beispielnutzung:
+#     class MyModel(TrackingMixin, BaseModel):
+#         items: list[int]
+#
+#     model = MyModel(items=[1, 2, 3])
+#     model.onchange = lambda field, val: print("Changed", field, val)
+#
+# Autor: Ruediger Kessel
 
 from typing import Callable, Optional, Any, get_origin
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
 from .containers import TrackedList, TrackedDict, TrackedSet
 import warnings
 
 class TrackingMixin:
-    onchange: Optional[Callable[["TrackingMixin", str, Any], Optional[bool]]] = None
-    onchanged: Optional[Callable[["TrackingMixin", str, Any], None]] = None
-
+    _onchange: Optional[Callable[["TrackingMixin", str, Any], Optional[bool]]] = PrivateAttr(default=None)
+    _onchanged: Optional[Callable[["TrackingMixin", str, Any], None]] = PrivateAttr(default=None)
     def __init__(self, **data):
         super().__init__(**data)
         for field, value in self.model_dump().items():
@@ -24,16 +42,32 @@ class TrackingMixin:
 
     def _call_onchange(self, name, value):
         if callable(self.onchange):
-            result = self.onchange(self, name, value)
+            result = self.onchange(name, value)
             if result is None:
                 result=True
             return result   
         else:
             return True
 
+    @property
+    def onchange(self):
+        return self._onchange
+
+    @onchange.setter
+    def onchange(self, func):
+        self._onchange = func
+
+    @property
+    def onchanged(self):
+        return self._onchanged
+
+    @onchanged.setter
+    def onchanged(self, func):
+        self._onchanged = func
+
     def _call_onchanged(self, name, old):
         if callable(self.onchanged):
-            self.onchanged(self, name, old)
+            self.onchanged(name, old)
 
     def _wrap(self, field, value):
         t = get_origin(self.__class__.model_fields[field].annotation)
@@ -46,7 +80,10 @@ class TrackingMixin:
         return value
 
     def __setattr__(self, name, value):
-        if hasattr(self.__class__, "model_fields") and name in self.__class__.model_fields:
+        if name.startswith("_"):
+            super().__setattr__(name, value)
+            return
+        if hasattr(self.__class__, "model_fields") and (name in self.__class__.model_fields):
             old = getattr(self, name, None)
             if old != value:
                 result = self._call_onchange(name, value)

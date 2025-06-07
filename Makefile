@@ -12,7 +12,8 @@ install:
 # Testen
 .PHONY: test
 test:
-	hatch run test
+	coverage run -m pytest
+	coverage html
 
 # Linting mit Ruff (optional)
 .PHONY: lint
