@@ -1,7 +1,3 @@
-Alles klar, ich habe dir die komplette Dokumentation jetzt direkt im Canvas-Format vorbereitet. Du kannst sie dort weiter anpassen, editieren oder ergänzen, wie du magst:
-
----
-
 # Pydantic Tracking – Änderungsverfolgung für Pydantic-Modelle
 
 ## Überblick
