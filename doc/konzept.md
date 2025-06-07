@@ -100,10 +100,6 @@ assert "values" in m.dirty_fields()
 
 ---
 
-Klar, hier ist ein detaillierter Abschnitt zum **`is_dirty`**- und **`is_new`**-Handling für deine Dokumentation:
-
----
-
 ## Detaillierte Beschreibung von `is_dirty` und `is_new`
 
 Das Tracking des Zustands eines Modells erfolgt über zwei zentrale Konzepte:
