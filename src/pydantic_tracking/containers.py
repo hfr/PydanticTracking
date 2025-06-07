@@ -1,11 +1,13 @@
 # containers.py
 
 class TrackedList(list):
-    def __init__(self, iterable, parent, field, callback):
+    def __init__(self, iterable, parent, field, callback, onchange, onchanged):
         super().__init__(iterable)
         self._parent = parent
         self._field = field
         self._callback = callback
+        self._onchange = onchange
+        self._onchanged = onchanged
 
     def _mark_dirty(self):
         self._callback(self._field)
@@ -44,14 +46,25 @@ class TrackedList(list):
         self._mark_dirty()
 
 class TrackedDict(dict):
-    def __init__(self, mapping, parent, field, callback):
+    def __init__(self, mapping, parent, field, callback, onchange, onchanged):
         super().__init__(mapping)
         self._parent = parent
         self._field = field
         self._callback = callback
+        self._onchange = onchange
+        self._onchanged = onchanged
 
     def _mark_dirty(self):
         self._callback(self._field)
+
+    def _setter(self, oper, elem):
+        if self._onchange(self._field, elem):
+            if elem is None:
+                oper()
+            else:
+                oper(elem)
+            self._mark_dirty()
+            self._onchanged(self._field, None)
 
     def __setitem__(self, key, value):
         super().__setitem__(key, value)
@@ -75,33 +88,42 @@ class TrackedDict(dict):
         self._mark_dirty()
 
 class TrackedSet(set):
-    def __init__(self, iterable, parent, field, callback):
+    def __init__(self, iterable, parent, field, callback, onchange, onchanged):
         super().__init__(iterable)
         self._parent = parent
         self._field = field
         self._callback = callback
+        self._onchange = onchange
+        self._onchanged = onchanged
 
     def _mark_dirty(self):
         self._callback(self._field)
+        
+    def _setter(self, oper, elem):
+        if self._onchange(self._field, elem):
+            if elem is None:
+                oper()
+            else:
+                oper(elem)
+            self._mark_dirty()
+            self._onchanged(self._field, None)
 
     def add(self, elem):
-        super().add(elem)
-        self._mark_dirty()
-
+        self._setter(super().add, elem)
+            
     def discard(self, elem):
-        super().discard(elem)
-        self._mark_dirty()
+        self._setter(super().discard, elem)
 
     def remove(self, elem):
-        super().remove(elem)
-        self._mark_dirty()
+        self._setter(super().remove, elem)
 
     def pop(self):
-        result = super().pop()
-        self._mark_dirty()
-        return result
+        if self._onchange(self._field, None):
+            result = super().pop()
+            self._mark_dirty()
+            self._onchanged(self._field, None)
+            return result
 
     def clear(self):
-        super().clear()
-        self._mark_dirty()
+        self._setter(super().clear, None)
 
