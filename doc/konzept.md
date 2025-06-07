@@ -189,7 +189,7 @@ Das Tracking des Zustands eines Modells erfolgt über zwei zentrale Konzepte:
 * Jede Änderung an einem Feld fügt dieses dem Set `dirty_fields` hinzu, wodurch `is_dirty` true und `is_new` false wird.
 * Beim Speichern (`save()`) wird überprüft, ob das Speichern erfolderlich ist (`is_new = True` oder `is_dirty = True`).
 * Nach erfolgreichem Speichern wird das Modell nicht mehr als neu markiert (`is_new = False`) und alle dirty Flags werden zurückgesetzt (`is_dirty = False`).
-* Das Laden des Modells mit `het()` führt dazu, dass `is_new = False` und `is_dirty = False` ist.
+* Das Laden des Modells mit `get()` führt dazu, dass `is_new = False` und `is_dirty = False` ist.
 
 ---
 
