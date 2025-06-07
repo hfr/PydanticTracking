@@ -109,7 +109,7 @@ class TrackingMixin:
         return obj
 
     def save(self, force=False):
-        if force or self.is_dirty():
+        if force or self.is_dirty() or self.__is_new__:
             try:
                 result = super().save()
             except AttributeError:
@@ -123,7 +123,7 @@ class TrackingMixin:
         return None
 
     def is_dirty(self):
-        return self.__is_new__ or bool(self.__dirty_fields__)
+        return bool(self.__dirty_fields__)
 
     def is_new(self):
         return self.__is_new__

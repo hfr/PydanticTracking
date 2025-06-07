@@ -27,7 +27,7 @@ class DummyModel(TrackingMixin, BaseModelSave):
 
 def test_save_method():
     m = DummyModel(field1=10)
-    assert m.is_dirty()
+    assert not m.is_dirty()
     assert m.is_new()
 
     m.field1 = 20
@@ -63,7 +63,7 @@ class DummyModelSave(TrackingMixin, BaseModel):
 
 def test_tracked_save_method_with_decorator():
     m = DummyModelSave(field1=10)
-    assert m.is_dirty()
+    assert not m.is_dirty()
     assert m.is_new()
 
     m.field1 = 20
@@ -94,7 +94,7 @@ class MyModel(TrackingMixin, BaseModel):
 
 def test_list_tracking():
     m = MyModel(tags=[1])
-    assert m.is_dirty()
+    assert not m.is_dirty()
     assert m.is_new()
 
     m.tags.append(2)
@@ -137,7 +137,7 @@ def test_list_remove_marks_dirty():
     m = MyModel(tags=[1, 2, 3])
     m.clear_dirty()
     assert m.is_new()
-    assert m.is_dirty()
+    assert not m.is_dirty()
 
     m.tags.remove(2)  # sollte Dirty-Tracking auslösen
     assert not m.is_new()

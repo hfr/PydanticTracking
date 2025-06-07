@@ -1,0 +1,30 @@
+stateDiagram
+  direction TB
+  [*] --> Created:instantiation
+  Created --> Loaded:get()
+  Created --> Loaded:save()
+  Created --> Modified:change field
+  Modified --> Loaded:save()
+  Modified --> Loaded:get()
+  Modified --> Loaded:clear_dirty()
+  Loaded --> Modified:change field
+  Created --> Destroyed:del
+  Modified --> Destroyed:del
+  Loaded --> Destroyed:del
+  Created:🆕 Created
+  Loaded:💾 Loaded/Saved
+  Modified:✏️ Modified
+  Destroyed:🗑️ Destroyed
+  note left of Created 
+  is_new: True
+    is_dirty: False
+  end note
+  note left of Loaded 
+  is_new: False
+    is_dirty: False
+  end note
+  note right of Modified 
+  is_new: False
+    is_dirty: True
+  end note
+

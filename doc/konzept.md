@@ -185,26 +185,7 @@ Das Tracking des Zustands eines Modells erfolgt über zwei zentrale Konzepte:
 
   * Dienen als Gatekeeper und können Änderungen blockieren (z.B. Validierung).
 
-flowchart TD
-    A[Modell erzeugt] --> B{Ist Modell neu?}
-    B -- Ja --> C[is_new = True]
-    C --> D[Felder initial dirty?]
-    D -- Ja --> E[is_dirty = True]
-    D -- Nein --> F[is_dirty = False]
-
-    E & F --> G[Änderung an Feld?]
-    G -- Ja --> H[Feld in dirty_fields aufnehmen]
-    H --> I[is_dirty = True]
-
-    G -- Nein --> I
-
-    I --> J[save() aufrufen?]
-    J -- Nein --> I
-    J -- Ja --> K{save() erfolgreich?}
-    K -- Ja --> L[is_new = False]
-    L --> M[dirty_fields löschen]
-    M --> N[is_dirty = False]
-    K -- Nein --> I
+![Zustandsdiagramm des Datenmodells](doc/states.png)
 
 **Erklärung:**
 
