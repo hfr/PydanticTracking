@@ -37,7 +37,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Tests
-      run: hatch run +py=${{ matrix.python-version }} test:test
+      run: hatch run +py=${{ matrix.python-version }} test
 
     - name: Lint
       run: |
