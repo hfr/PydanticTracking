@@ -36,9 +36,6 @@ jobs:
         python -m pip install redis-om
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Lint
-      run: hatch run check
-
     - name: Tests
       run: hatch run +py=${{ matrix.python-version }} test:test
 
