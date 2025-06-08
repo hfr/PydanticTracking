@@ -18,13 +18,6 @@ Dirty Tracking, Change Hooks und Mutationsüberwachung für Pydantic-Modelle –
 pip install pydantic-tracking
 ```
 
-Oder über [Hatch](https://hatch.pypa.io):
-
-```bash
-hatch env create
-hatch shell
-```
-
 ---
 
 ## Beispiel

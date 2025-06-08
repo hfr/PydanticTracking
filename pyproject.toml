@@ -8,7 +8,6 @@ dependencies = ["pydantic>=2.0"]
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 dynamic = ["version"]
@@ -25,7 +24,14 @@ Issues = "https://github.com/hfr/PydanticTracking/issues"
 [tool.hatch.envs.default]
 dependencies = [
   "ruff",
-  "pytest"
+  "pytest",
+  "coverage"
+]
+
+[project.optional-dependencies]
+build = ["hatch"]
+test = [
+  "redis-om"
 ]
 
 [tool.hatch.envs.default.scripts]
@@ -40,3 +46,12 @@ lint.ignore = ["E501"]  # z.B. Zeilenlänge ignorieren
 
 [tool.hatch.version]
 path = "src/pydantic_tracking/__init__.py"
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
+
+[tool.hatch.envs.test]
+dependencies = [
+  "redis-om"
+]
+

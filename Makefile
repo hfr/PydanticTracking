@@ -39,6 +39,10 @@ check: build
 publish: check
 	hatch publish
 
+# Veröffentlichung zu PyPI (Voraussetzung: `~/.pypirc`)
+.PHONY: pypi
+pypi: check
+	cp dist/* ../../var/pypi/.
 # Versionsbump
 .PHONY: bump-patch
 bump-patch:
